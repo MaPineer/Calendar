@@ -35,7 +35,7 @@ func StartReminderChecker() {
 					}
 					fmt.Println("已经通过" + reminder.NotificationType + "发送给" + reminder.CreatorID)
 					notifier.Send(reminder.CreatorID, reminder.Content)
-					utils.Broadcast <- models.Reminder{Content: reminder.Content, CreatorID: reminder.CreatorID}
+					utils.Broadcast <- reminder
 					models.Delete(reminder.CreatorID, index)
 				}
 			}

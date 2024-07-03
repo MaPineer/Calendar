@@ -10,7 +10,7 @@ import (
 
 func RegisterRoutes(router *gin.Engine) {
 	router.POST("/reminder", addReminder)
-	router.GET("/reminders/:creatorID", getReminders)
+	router.GET("/reminder/:creatorID", getReminders)
 	router.PUT("/reminder/:creatorID/:index", updateReminder)
 	router.DELETE("/reminder/:creatorID/:index", deleteReminder)
 	router.GET("/ws", func(c *gin.Context) {
@@ -33,7 +33,9 @@ func addReminder(c *gin.Context) {
 func getReminders(c *gin.Context) {
 	creatorID := c.Param("creatorID")
 	var creatorReminders = models.Get(creatorID)
-
+	if creatorReminders == nil {
+		c.JSON(http.StatusOK, gin.H{"success": "当前用户没有设置提醒哦~"})
+	}
 	c.JSON(http.StatusOK, creatorReminders)
 }
 
@@ -50,17 +52,14 @@ func updateReminder(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	if creatorID != updatedReminder.CreatorID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "您只能修改自己的提醒"})
+		return
+	}
 
 	reminders := models.Get(creatorID)
 	if index >= len(reminders) {
 		c.JSON(http.StatusForbidden, gin.H{"error": "要更新的提醒不存在"})
-		return
-	}
-
-	var reminder = reminders[index]
-
-	if reminder.CreatorID != updatedReminder.CreatorID {
-		c.JSON(http.StatusForbidden, gin.H{"error": "您只能修改自己的提醒"})
 		return
 	}
 
