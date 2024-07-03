@@ -6,6 +6,7 @@ import (
 )
 
 // 定义一个全局的map和互斥锁
+// map的key是每个用户的id value是里面用户的的提醒 当然也可以对接数据库 因为时间有限目前采用数组存储，后续可以改为优先队列
 var (
 	globalMap = make(map[string][]Reminder)
 	mutex     sync.Mutex
